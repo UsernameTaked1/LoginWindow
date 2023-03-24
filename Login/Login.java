@@ -1,82 +1,83 @@
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class Login extends JFrame{
+public class Login extends JFrame {
+    private JLabel u, c;
     private final JTextField usuario;
     private final JTextField contraseña;
     private JButton login;
+    private JButton crear;
     private final JPanel p;
-    private String password;
-    String hash;
-    
-    public Login(){
-        password = "Ladesiempre";
-        hash = hashPassword(password);
+    private Archivos a;
+
+    public Login() {
+        super("Login");
+        u = new JLabel("Usuario:");
+        c = new JLabel("Contraseña:");
+        a = new Archivos();
         p = new JPanel();
         usuario = new JTextField("Usuario");
         contraseña = new JTextField("Contraseña");
         login = new JButton("Ingresar");
+        crear = new JButton("Crear Usaurio");
         atributos();
         armado();
         escuchas();
         mostrar();
     }
-    
-    public void atributos(){
-        setSize(300,300);
+
+    public void atributos() {
+        setSize(300, 300);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
-    
-    public void armado(){
-        add(p,BorderLayout.CENTER);
+
+    public void armado() {
+        add(p, BorderLayout.CENTER);
+        p.add(u,BorderLayout.NORTH);
         p.add(usuario, BorderLayout.NORTH);
+        p.add(c,BorderLayout.NORTH);
         p.add(contraseña, BorderLayout.NORTH);
-        p.add(login,BorderLayout.PAGE_END);
+        p.add(login, BorderLayout.PAGE_END);
+        p.add(crear, BorderLayout.PAGE_END);
     }
 
-    public void mostrar(){
+    public void mostrar() {
         setVisible(true);
         repaint();
     }
-    
-    public static String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(password.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hash) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            System.out.println("Error al crear el hash de la contraseña.");
-            return null;
-        }
-    }
-    
-    public void escuchas(){
-        login.addActionListener(new ActionListener(){
+
+    public void escuchas() {
+        login.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                
-                if (usuario.getText().equals("Tadeo")&& hashPassword(contraseña.getText()).equals(hash)) {
-                    ProgramaMuestra i = new ProgramaMuestra();
-                    setVisible(false);
-                                }else{
-                    JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecto");
+                String[] c = a.readDataFromFile().split("@");
+                for (int i = 0; i < c.length; i=i+2) {
+                    if (c[i].equals(a.hashPassword(usuario.getText())) && c[(i+1)].equals(a.hashPassword(contraseña.getText()))) {
+                        ProgramaMuestra m = new ProgramaMuestra();
+                        setVisible(false);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecto");
+                    }
                 }
-                }
+            }
+        });
+
+        crear.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Usuarios u = new Usuarios();
+                setVisible(false);
+            }
         });
     }
-    
+
     public static void main(String[] args) {
         Login l = new Login();
     }
